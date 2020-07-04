@@ -11,6 +11,10 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 # initialize bot
 bot = Bot(command_prefix='rb!')
 
+# required role to use restricted features of this bot
+CONTROLLER = 'rb'
+restricted_roles = [CONTROLLER, 'Admin']
+
 # checks if role exists
 def check_role_existence(target, roles):
     for role in roles:
@@ -25,7 +29,6 @@ async def on_ready():
 
 # adds a role to the server the bot is on
 @bot.command(name='add', help='Adds a new, non-restricted role with the same rights as @everyone')
-#@commands.has_role('Admin')
 async def add(ctx, role_name: str):
     guild = ctx.guild
     found = check_role_existence(role_name, guild.roles)
@@ -35,6 +38,20 @@ async def add(ctx, role_name: str):
     else:
         await guild.create_role(name=role_name)
         await ctx.send(f'Role {role_name} has been created.')
+
+# adds a role to the server the bot is on
+@bot.command(name='remove', help='Removes a role from the server, only users with the "rb" role can use this.')
+@commands.has_role(CONTROLLER)
+async def remove(ctx, role_name: str):
+    guild = ctx.guild
+    found = check_role_existence(role_name, guild.roles)
+
+    if found:
+        # find a way to remove roles
+        # await ctx.message.author.
+        await ctx.send(f'Role {role_name} has been deleted.')
+    else:
+        await ctx.send(f'Role {role_name} does not exist in this server.')
 
 # run the bot
 bot.run(TOKEN)
